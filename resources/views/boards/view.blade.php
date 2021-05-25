@@ -26,6 +26,11 @@
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">{{$board->name}}</h3>
+                <button style="float: right;font-size: 20px;" class="btn btn-sm btn-success"
+                    type="button"
+                    data-toggle="modal"
+                    data-target="#taskAddModal">
+                    Add task</button>
             </div>
 
             <div class="card-body">
@@ -170,6 +175,44 @@
                     <div class="modal-footer justify-content-between">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-primary" id="taskEditButton">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="taskAddModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Add task</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-danger hidden" id="taskAddAlert"></div>
+                        <input type="hidden" id="boardId" value="{{$board->id}}" />
+                        <div class="form-group">
+                            <label for="taskAddName">Name</label>
+                            <input type="text" class="form-control" id="taskAddName" placeholder="Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="addDescription">Description</label>
+                            <textarea class="form-control" id="addDescription" placeholder="Description"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="taskAddAssignment">Assignment</label>
+                            <select class="custom-select rounded-0" id="taskAddAssignment">
+                                <option value="">Unassigned</option>
+                                @foreach ($boardUsers as $boardUser)
+                                    <option value="{{$boardUser->user_id}}">{{$boardUser->user->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="taskAddButton">Add</button>
                     </div>
                 </div>
             </div>

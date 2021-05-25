@@ -48,7 +48,8 @@ class BoardController extends Controller
             'boards.index',
             [
                 'boards' => $boards,
-                'userList' => User::select(['id', 'name'])->get()->toArray()
+                'userList' => User::select(['id', 'name'])->get()->toArray(),
+                'owner' => $user->id,
             ]
         );
     }
@@ -105,6 +106,34 @@ class BoardController extends Controller
         }
 
         return response()->json(['error' => $error, 'success' => $success, 'board' => $board]);
+    }
+
+    public function addBoard(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        /** @var Board $board */
+        $board = new Board();
+        $board->name = $request->get('name');
+        $board->user_id = $user->id;
+        $board->save();
+
+        $error = '';
+        $success = '';
+
+        $boardUsers = $request->get('boardUsers');
+
+        foreach ($boardUsers as $userId) {
+            $newBoardUser = new BoardUser();
+            $newBoardUser->board_id = $board->id;
+            $newBoardUser->user_id = $userId;
+            $newBoardUser->save();
+        }
+
+        $success = 'Successful';
+
+        return response()->json(['error' => $error, 'success' => $success]);
     }
 
     /**
@@ -219,6 +248,33 @@ class BoardController extends Controller
         }
 
         return response()->json(['error' => $error, 'success' => $success, 'task' => $task]);
+    }
+
+    public function addTask(Request $request, $id): JsonResponse
+    {
+        /** @var Task $task */
+        $board = Board::find($id);
+
+        /** @var User $user */
+        $user = Auth::user();
+
+
+        $error = '';
+        $success = '';
+
+        if ($board->user_id === $user->id || $user->role === User::ROLE_ADMIN) {
+            $newTask = new Task();
+            $newTask->board_id = $board->id;
+            $newTask->name = $request->get('name');
+            $newTask->description = $request->get('description');
+            $newTask->assignment =  $request->get('assignment');
+            $newTask->status = Task::STATUS_CREATED;
+            $newTask->save();
+        } else {
+            $error = 'You don\'t have permission to add a task!';
+        }
+
+        return response()->json(['error' => $error, 'success' => $success]);
     }
 
     /**

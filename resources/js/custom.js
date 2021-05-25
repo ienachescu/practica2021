@@ -50,6 +50,16 @@ $('#boardEditModal').on('shown.bs.modal', function(event) {
     modal.find('#boardEditUsers').trigger('change');
 });
 
+$('#boardAddModal').on('shown.bs.modal', function(event) {
+    let button = $(event.relatedTarget); // Button that triggered the modal
+    let ownerId = button.data('owner');
+
+    let modal = $(this);
+
+    modal.find('#boardAddUsers').val(ownerId);
+    modal.find('#boardAddUsers').trigger('change');
+});
+
 $('#boardDeleteModal').on('shown.bs.modal', function(event) {
     let button = $(event.relatedTarget); // Button that triggered the modal
     let board = button.data('board');
@@ -153,6 +163,33 @@ $(document).ready(function() {
         });
     });
 
+    $('#boardAddUsers').select2();
+
+    $('#boardAddButton').on('click', function() {
+        $('#boardAddAlert').addClass('hidden');
+
+        let name = $('#boardAddName').val();
+        let boardUsersData = $('#boardAddUsers').select2('data');
+
+        let boardUsers = [];
+
+        boardUsersData.forEach(function(item) {
+            boardUsers.push(item.id);
+        });
+
+        $.ajax({
+            method: 'POST',
+            url: '/board/add',
+            data: {name, boardUsers}
+        }).done(function(response) {
+            if (response.error !== '') {
+                $('#boardEditAlert').text(response.error).removeClass('hidden');
+            } else {
+                window.location.reload();
+            }
+        });
+    });
+
     $('#boardDeleteButton').on('click', function() {
         $('#boardDeleteAlert').addClass('hidden');
         let id = $('#boardDeleteId').val();
@@ -185,6 +222,27 @@ $(document).ready(function() {
         }).done(function(response) {
             if (response.error !== '') {
                 $('#taskEditAlert').text(response.error).removeClass('hidden');
+            } else {
+                window.location.reload();
+            }
+        });
+    });
+
+    $('#taskAddButton').on('click', function() {
+        $('#taskAddAlert').addClass('hidden');
+
+        let boardId = $('#boardId').val();
+        let name = $('#taskAddName').val();
+        let description = $('#addDescription').val();
+        let assignment = $('#taskAddAssignment').val();
+
+        $.ajax({
+            method: 'POST',
+            url: '/board/' + boardId + '/addtask',
+            data: {name, description, assignment}
+        }).done(function(response) {
+            if (response.error !== '') {
+                $('#taskAddAlert').text(response.error).removeClass('hidden');
             } else {
                 window.location.reload();
             }
